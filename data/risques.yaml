@@ -1,0 +1,265 @@
+# Registre des risques de sécurité de l'information (ISO/IEC 27001:2022, clauses 6.1.2,
+# 6.1.3 et 8.2 / 8.3). Méthode : docs/02-risques/methodologie-risques.md
+#
+# vraisemblance (V) et impact (I) : 1 à 4. Niveau = V x I.
+#   1-3 faible | 4-6 modéré | 8-9 élevé | 12-16 critique
+# Appétence au risque : un risque résiduel > 6 doit être accepté formellement
+# par le Directeur Général (champ acceptation).
+version: "2.1"
+date_revue: 2026-10-05
+proprietaire_registre: RSSI
+
+risques:
+  - id: R01
+    titre: Prise de contrôle de comptes clients par SIM swap frauduleux
+    scenario: >
+      Un fraudeur obtient un duplicata de carte SIM (complicité ou usurpation en boutique),
+      reçoit les OTP du client, réinitialise le PIN et vide le portefeuille.
+    actifs: [A03, A01, A06]
+    menace: Fraude externe avec ingénierie sociale ou complicité interne chez l'opérateur
+    proprietaire: Responsable Fraude
+    brut: {V: 4, I: 4}
+    traitement: reduire
+    controles: ["5.14", "5.19", "5.20", "8.5", "8.16", "5.24"]
+    mesures:
+      - Flux temps réel de changement de SIM fourni par l'opérateur et gel automatique de 48 h des opérations sortantes.
+      - Réinitialisation de PIN après changement de SIM uniquement en agence avec pièce d'identité.
+      - Règle de détection SIEM "changement SIM + réinitialisation PIN + retrait < 24 h".
+    residuel: {V: 2, I: 3}
+    actions:
+      - {id: PA-01, libelle: "Intégrer l'API de notification SIM swap de l'opérateur", responsable: DSI, echeance: 2026-11-30, statut: en_cours}
+      - {id: PA-02, libelle: "Ajouter la clause SIM swap dans le contrat opérateur (SLA 5 min)", responsable: Responsable Achats, echeance: 2026-12-15, statut: en_cours}
+
+  - id: R02
+    titre: Fraude interne ou collusion d'agents distributeurs
+    scenario: >
+      Des agents réalisent des cash-in fictifs ou fractionnés pour capter des commissions,
+      avec la complicité d'un employé du back-office qui valide les régularisations.
+    actifs: [A05, A06, A01]
+    menace: Fraude interne
+    proprietaire: Responsable Fraude
+    brut: {V: 3, I: 4}
+    traitement: reduire
+    controles: ["5.3", "5.18", "8.2", "8.15", "8.16", "6.4"]
+    mesures:
+      - Séparation des tâches saisie / validation des régularisations (principe des quatre yeux).
+      - Plafonds par agent et alertes sur les schémas de fractionnement.
+      - Revue trimestrielle des droits du back-office.
+    residuel: {V: 2, I: 3}
+    actions:
+      - {id: PA-03, libelle: "Déployer les règles de détection de fractionnement", responsable: Responsable Fraude, echeance: 2026-10-31, statut: termine}
+
+  - id: R03
+    titre: Fuite de données KYC
+    scenario: >
+      Exfiltration de pièces d'identité et de MSISDN via une API mal protégée, un export
+      du back-office ou une sauvegarde non chiffrée.
+    actifs: [A02, A04, A06, A08]
+    menace: Attaquant externe, initié malveillant
+    proprietaire: Responsable Conformité
+    brut: {V: 3, I: 4}
+    traitement: reduire
+    controles: ["5.12", "5.34", "8.3", "8.11", "8.12", "8.24"]
+    mesures:
+      - Masquage des MSISDN et numéros de pièce dans les API et le back-office.
+      - Chiffrement des sauvegardes et des volumes de base de données.
+      - Exports du back-office soumis à habilitation et journalisés.
+    residuel: {V: 2, I: 3}
+    actions:
+      - {id: PA-04, libelle: "Mettre en place la DLP sur la messagerie (pièces jointes d'identité)", responsable: RSSI, echeance: 2027-02-28, statut: planifie}
+      - {id: PA-08, libelle: "Alerte SIEM en temps réel sur les exports volumineux du back-office (retour d'expérience INC-2026-003, détecté en 55 h)", responsable: RSSI, echeance: 2026-12-15, statut: en_cours}
+
+  - id: R04
+    titre: Compromission d'un compte administrateur de la plateforme
+    scenario: >
+      Hameçonnage ciblé d'un administrateur, vol de session et exécution d'opérations
+      privilégiées (création de monnaie, modification de plafonds).
+    actifs: [A01, A06, A07]
+    menace: Attaquant externe (hameçonnage ciblé)
+    proprietaire: RSSI
+    brut: {V: 3, I: 4}
+    traitement: reduire
+    controles: ["8.2", "8.5", "8.18", "6.3", "5.17"]
+    mesures:
+      - Bastion d'administration avec MFA matérielle et enregistrement des sessions.
+      - Comptes à privilèges nominatifs, séparés des comptes bureautiques.
+      - Campagnes d'hameçonnage simulé trimestrielles.
+    residuel: {V: 1, I: 4}
+    actions: []
+
+  - id: R05
+    titre: Indisponibilité prolongée de la plateforme de paiement
+    scenario: >
+      Panne du centre de données principal ou attaque par déni de service sur l'API
+      et le canal USSD, rendant les paiements impossibles plus de 4 heures.
+    actifs: [A01, A03, A04, A10]
+    menace: Sinistre, défaillance technique, DDoS
+    proprietaire: DSI
+    brut: {V: 2, I: 4}
+    traitement: reduire
+    controles: ["5.29", "5.30", "8.6", "8.14", "8.20"]
+    mesures:
+      - Site de secours actif / passif avec réplication des bases (RPO 15 min, RTO 4 h).
+      - Protection anti-DDoS du fournisseur de transit et limitation de débit sur le proxy.
+      - Test de bascule semestriel.
+    residuel: {V: 1, I: 4}
+    actions:
+      - {id: PA-05, libelle: "Réaliser le test de bascule du second semestre", responsable: DSI, echeance: 2026-11-15, statut: planifie}
+
+  - id: R06
+    titre: Rançongiciel sur le SI interne avec propagation vers la production
+    scenario: >
+      Un poste infecté chiffre les partages réseau puis atteint les serveurs de production
+      par réutilisation d'identifiants.
+    actifs: [A07, A01, A08]
+    menace: Cybercriminalité organisée
+    proprietaire: RSSI
+    brut: {V: 3, I: 4}
+    traitement: reduire
+    controles: ["8.7", "8.22", "8.13", "8.1", "8.8"]
+    mesures:
+      - EDR sur tous les postes et serveurs.
+      - Cloisonnement strict bureautique / production (aucun flux direct).
+      - Sauvegardes immuables et copie hors ligne testées.
+    residuel: {V: 2, I: 3}
+    actions: []
+
+  - id: R07
+    titre: Exploitation d'une vulnérabilité de l'API partenaires
+    scenario: >
+      Un partenaire ou un attaquant exploite une faille d'autorisation au niveau objet
+      (BOLA) pour consulter ou débiter le portefeuille d'un autre client.
+    actifs: [A04, A01]
+    menace: Attaquant externe, partenaire malveillant
+    proprietaire: Directeur des Opérations
+    brut: {V: 3, I: 4}
+    traitement: reduire
+    controles: ["8.25", "8.26", "8.28", "8.29", "8.8", "8.3"]
+    mesures:
+      - Contrôle d'autorisation au niveau objet sur chaque route (test automatisé en CI).
+      - Analyse statique et scan de vulnérabilités à chaque livraison.
+      - Test d'intrusion annuel par un tiers.
+    residuel: {V: 1, I: 4}
+    actions: []
+
+  - id: R08
+    titre: Défaillance d'un prestataire critique
+    scenario: >
+      L'hébergeur principal ou l'éditeur de la plateforme subit un incident majeur,
+      fait faillite ou ne respecte pas ses engagements de sécurité.
+    actifs: [A10, A01]
+    menace: Défaillance de la chaîne d'approvisionnement
+    proprietaire: Responsable Achats
+    brut: {V: 2, I: 4}
+    traitement: reduire
+    controles: ["5.19", "5.20", "5.21", "5.22", "5.23"]
+    mesures:
+      - Clauses de sécurité, de réversibilité et d'audit dans les contrats.
+      - Revue annuelle des rapports ISAE 3402 type II des prestataires.
+    residuel: {V: 2, I: 4}
+    acceptation: {par: Directeur Général, date: 2026-07-10, motif: "Pas d'hébergeur alternatif certifié au Cameroun à coût acceptable ; réévaluation en 2027."}
+    actions:
+      - {id: PA-06, libelle: "Étudier un second hébergeur dans la zone CEMAC", responsable: DSI, echeance: 2027-06-30, statut: planifie}
+
+  - id: R09
+    titre: Interception des OTP via les failles de signalisation (SS7)
+    scenario: >
+      Un attaquant ayant accès au réseau de signalisation intercepte les SMS contenant
+      les codes OTP de validation.
+    actifs: [A03]
+    menace: Attaquant étatique ou criminel disposant d'un accès à l'interconnexion
+    proprietaire: DSI
+    brut: {V: 2, I: 4}
+    traitement: reduire
+    controles: ["5.14", "8.5", "8.21"]
+    mesures:
+      - Pare-feu de signalisation SS7 chez l'opérateur (exigence contractuelle, recommandations GSMA FS.11).
+      - Validation des opérations sensibles par PIN côté réseau USSD plutôt que par SMS.
+    residuel: {V: 1, I: 4}
+    actions: []
+
+  - id: R10
+    titre: Changement non maîtrisé en production
+    scenario: >
+      Une mise en production sans test ni retour arrière provoque des écritures erronées
+      dans le grand livre.
+    actifs: [A01]
+    menace: Erreur humaine
+    proprietaire: DSI
+    brut: {V: 3, I: 3}
+    traitement: reduire
+    controles: ["8.32", "8.31", "8.9", "8.29"]
+    mesures:
+      - Comité des changements (CAB) pour les changements normaux et urgents.
+      - Environnements séparés et pipeline de déploiement avec validations.
+    residuel: {V: 1, I: 3}
+    actions: []
+
+  - id: R11
+    titre: Non-conformité réglementaire
+    scenario: >
+      Manquement aux obligations du régulateur des services de paiement (COBAC / BEAC)
+      ou de protection des données personnelles, entraînant sanctions ou retrait d'agrément.
+    actifs: [A02, A01]
+    menace: Évolution réglementaire, défaut de pilotage
+    proprietaire: Responsable Conformité
+    brut: {V: 2, I: 4}
+    traitement: reduire
+    controles: ["5.31", "5.34", "5.35", "5.36", "5.5"]
+    mesures:
+      - Registre des exigences légales revu chaque semestre.
+      - Audit interne annuel du SMSI et audit externe de certification.
+    residuel: {V: 1, I: 4}
+    actions: []
+
+  - id: R12
+    titre: Journalisation insuffisante empêchant l'investigation
+    scenario: >
+      Les journaux ne couvrent pas les opérations sensibles ou ne sont pas conservés,
+      rendant impossibles la preuve et la remontée au régulateur.
+    actifs: [A09, A01, A06]
+    menace: Défaut de conception
+    proprietaire: RSSI
+    brut: {V: 3, I: 3}
+    traitement: reduire
+    controles: ["8.15", "8.16", "8.17", "5.28"]
+    mesures:
+      - Journal d'audit structuré (JSON) pour toute opération financière, sans donnée personnelle en clair.
+      - Conservation 12 mois en ligne, 10 ans en archive.
+    residuel: {V: 1, I: 3}
+    actions: []
+
+  - id: R13
+    titre: Escroquerie des clients par faux service client
+    scenario: >
+      Des fraudeurs se font passer pour le service client par appel ou SMS et obtiennent
+      le PIN du client.
+    actifs: [A01]
+    menace: Ingénierie sociale de masse
+    proprietaire: Responsable Fraude
+    brut: {V: 4, I: 3}
+    traitement: reduire
+    controles: ["6.3", "8.16", "5.24"]
+    mesures:
+      - Campagnes de sensibilisation clients (SMS, radio) "KamaPay ne vous demandera jamais votre PIN".
+      - Détection des comportements anormaux après appel entrant.
+    residuel: {V: 3, I: 3}
+    acceptation: {par: Directeur Général, date: 2026-07-10, motif: "Risque principalement porté par le comportement client ; réduction progressive par la sensibilisation."}
+    actions:
+      - {id: PA-07, libelle: "Campagne radio nationale de sensibilisation clients", responsable: Responsable Fraude, echeance: 2026-12-31, statut: en_cours}
+
+  - id: R14
+    titre: Restauration impossible des sauvegardes
+    scenario: >
+      Les sauvegardes existent mais sont corrompues, incomplètes ou trop lentes à restaurer
+      pour respecter le RTO.
+    actifs: [A08, A01]
+    menace: Défaut technique non détecté
+    proprietaire: DSI
+    brut: {V: 2, I: 4}
+    traitement: reduire
+    controles: ["8.13", "5.30"]
+    mesures:
+      - Test de restauration automatisé avec contrôle d'intégrité des données (voir lab/scripts/test-restauration.sh).
+    residuel: {V: 1, I: 3}
+    actions: []

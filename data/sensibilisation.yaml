@@ -1,0 +1,14 @@
+# Suivi du programme de sensibilisation (contrôle 6.3).
+# Programme : docs/07-sensibilisation/programme-sensibilisation.md
+version: "2026.10"
+proprietaire: RSSI
+
+campagnes:
+  - {id: SEN-2026-T1, theme: "Hameçonnage et MFA", public: salaries, cible: 180, formes: 171, date: 2026-03-31}
+  - {id: SEN-2026-T2, theme: "Protection des données clients", public: salaries, cible: 182, formes: 168, date: 2026-06-30}
+  - {id: SEN-2026-T3, theme: "Fraude et ingénierie sociale", public: agents, cible: 4200, formes: 3150, date: 2026-09-30}
+
+hameconnage_simule:
+  - {id: PHISH-2026-01, date: 2026-02-15, envoyes: 180, clics: 31, signalements: 22}
+  - {id: PHISH-2026-02, date: 2026-05-20, envoyes: 182, clics: 19, signalements: 47}
+  - {id: PHISH-2026-03, date: 2026-08-25, envoyes: 181, clics: 11, signalements: 69}

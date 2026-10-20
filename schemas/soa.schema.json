@@ -1,0 +1,31 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Déclaration d'applicabilité",
+  "type": "object",
+  "required": ["version", "date_revue", "approbateur", "controles"],
+  "properties": {
+    "version": {"type": "string"},
+    "date_revue": {"type": "string", "format": "date"},
+    "controles": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "titre", "statut", "preuves"],
+        "additionalProperties": false,
+        "properties": {
+          "id": {"type": "string", "pattern": "^[5-8]\\.[0-9]{1,2}$"},
+          "titre": {"type": "string", "minLength": 3},
+          "statut": {"enum": ["implemente", "partiel", "planifie", "non_applicable"]},
+          "justification": {"type": "string"},
+          "ecart": {"type": "string"},
+          "preuves": {"type": "array", "items": {"type": "string"}},
+          "checks": {"type": "array", "items": {"type": "string", "pattern": "^CHK-[A-Z]+-[0-9]{2}$"}},
+          "cobit": {"type": "array", "items": {"type": "string", "pattern": "^(EDM|APO|BAI|DSS|MEA)[0-9]{2}$"}},
+          "itil": {"type": "array", "items": {"type": "string"}},
+          "pci": {"type": "array", "items": {"type": "string"}},
+          "rgpd": {"type": "array", "items": {"type": "string", "pattern": "^[0-9]{1,2}$"}}
+        }
+      }
+    }
+  }
+}

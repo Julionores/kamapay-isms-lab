@@ -1,0 +1,146 @@
+# Registre des incidents de sécurité de l'information (contrôles 5.24 à 5.28).
+# Procédure : docs/05-incidents/procedure-gestion-incidents.md
+#
+# gravite : P1 (critique) | P2 (majeur) | P3 (modéré) | P4 (mineur)
+# Horodatages en UTC (ISO 8601). Les délais du tableau de bord sont calculés
+# à partir de debut -> detection (détection) et detection -> confinement (confinement).
+# notification : obligations remplies (régulateur, autorité de protection des données, clients)
+version: "2026.10"
+proprietaire_registre: RSSI
+
+incidents:
+  - id: INC-2026-001
+    titre: Vague de SIM swap sur des comptes à fort solde
+    categorie: fraude
+    gravite: P1
+    debut: 2026-02-03T06:10:00Z
+    detection: 2026-02-03T09:40:00Z
+    confinement: 2026-02-03T11:05:00Z
+    cloture: 2026-02-20T16:00:00Z
+    statut: clos
+    actifs: [A03, A01]
+    risques: [R01]
+    impact: "37 comptes touchés, 18,4 M FCFA débités ; 15,1 M FCFA récupérés par gel chez les partenaires."
+    notification: {regulateur: true, autorite_donnees: false, clients: true}
+    cause_racine: "Duplicatas de SIM délivrés sans contrôle biométrique dans 2 boutiques partenaires."
+    enseignements: "Gel automatique 48 h après changement de SIM (mesure R01) ; exercice sur table EX-2026-01."
+    actions: [PA-01, PA-02]
+
+  - id: INC-2026-002
+    titre: Hameçonnage ciblé d'un administrateur du back-office
+    categorie: compromission_compte
+    gravite: P2
+    debut: 2026-03-11T13:20:00Z
+    detection: 2026-03-11T13:52:00Z
+    confinement: 2026-03-11T14:10:00Z
+    cloture: 2026-03-14T10:00:00Z
+    statut: clos
+    actifs: [A06, A07]
+    risques: [R04]
+    impact: "Identifiants saisis sur une fausse page ; connexion bloquée par la MFA, aucun accès obtenu."
+    notification: {regulateur: false, autorite_donnees: false, clients: false}
+    cause_racine: "Courriel usurpant le fournisseur de messagerie, non détecté par le filtrage."
+    enseignements: "La MFA a arrêté l'attaque ; ajout du domaine au filtrage et module de sensibilisation dédié."
+    actions: []
+
+  - id: INC-2026-003
+    titre: Export non autorisé de données clients depuis le back-office
+    categorie: fuite_donnees
+    gravite: P2
+    debut: 2026-04-22T08:00:00Z
+    detection: 2026-04-24T15:30:00Z
+    confinement: 2026-04-24T16:00:00Z
+    cloture: 2026-05-15T12:00:00Z
+    statut: clos
+    actifs: [A06, A02]
+    risques: [R03, R02]
+    impact: "Export de 2 300 fiches clients (nom, MSISDN masqué, solde) par un employé en préavis."
+    notification: {regulateur: true, autorite_donnees: true, clients: false}
+    cause_racine: "Droits d'export non retirés lors du changement de poste (revue des accès non réalisée au T1)."
+    enseignements: "Retrait des droits déclenché par l'outil RH ; revue trimestrielle des accès ; détection trop lente (55 h) : alerte SIEM sur les exports (PA-08)."
+    actions: [PA-08]
+
+  - id: INC-2026-004
+    titre: Indisponibilité du canal USSD
+    categorie: disponibilite
+    gravite: P2
+    debut: 2026-06-07T18:45:00Z
+    detection: 2026-06-07T18:52:00Z
+    confinement: 2026-06-07T21:30:00Z
+    cloture: 2026-06-09T09:00:00Z
+    statut: clos
+    actifs: [A03]
+    risques: [R05, R08]
+    impact: "Paiements USSD impossibles pendant 2 h 45 ; application mobile restée disponible."
+    notification: {regulateur: true, autorite_donnees: false, clients: true}
+    cause_racine: "Changement de configuration chez l'opérateur sans préavis."
+    enseignements: "Préavis de changement de 72 h ajouté au plan d'assurance sécurité de l'opérateur."
+    actions: []
+
+  - id: INC-2026-005
+    titre: Tentatives de force brute sur l'authentification de l'API partenaires
+    categorie: attaque_applicative
+    gravite: P3
+    debut: 2026-07-19T02:00:00Z
+    detection: 2026-07-19T02:06:00Z
+    confinement: 2026-07-19T02:20:00Z
+    cloture: 2026-07-19T12:00:00Z
+    statut: clos
+    actifs: [A04]
+    risques: [R07]
+    impact: "41 000 requêtes depuis 3 adresses ; limitées par le proxy (HTTP 429), aucun compte compromis."
+    notification: {regulateur: false, autorite_donnees: false, clients: false}
+    cause_racine: "Attaque opportuniste."
+    enseignements: "Le contrôle CHK-RATE-01 est désormais exécuté à chaque livraison."
+    actions: []
+
+  - id: INC-2026-006
+    titre: Poste infecté par un logiciel malveillant au siège
+    categorie: logiciel_malveillant
+    gravite: P3
+    debut: 2026-08-28T10:15:00Z
+    detection: 2026-08-28T10:17:00Z
+    confinement: 2026-08-28T10:25:00Z
+    cloture: 2026-08-29T15:00:00Z
+    statut: clos
+    actifs: [A07]
+    risques: [R06]
+    impact: "Un poste isolé automatiquement par l'EDR ; réinstallé."
+    notification: {regulateur: false, autorite_donnees: false, clients: false}
+    cause_racine: "Clé USB personnelle."
+    enseignements: "Blocage des supports amovibles étendu aux postes de la direction commerciale."
+    actions: []
+
+  - id: INC-2026-007
+    titre: Fraude au faux service client
+    categorie: fraude
+    gravite: P3
+    debut: 2026-09-14T07:00:00Z
+    detection: 2026-09-15T08:30:00Z
+    confinement: 2026-09-15T12:00:00Z
+    cloture: null
+    statut: en_cours
+    actifs: [A01]
+    risques: [R13]
+    impact: "12 clients ont communiqué leur PIN ; 2,1 M FCFA détournés."
+    notification: {regulateur: false, autorite_donnees: false, clients: true}
+    cause_racine: "En cours d'analyse."
+    enseignements: ""
+    actions: [PA-07]
+
+  - id: INC-2026-008
+    titre: Certificat TLS de l'API partenaires proche de l'expiration
+    categorie: configuration
+    gravite: P4
+    debut: 2026-10-01T09:00:00Z
+    detection: 2026-10-01T09:00:00Z
+    confinement: 2026-10-02T10:00:00Z
+    cloture: 2026-10-02T10:30:00Z
+    statut: clos
+    actifs: [A04]
+    risques: [R05]
+    impact: "Aucun ; alerte à J-14 et renouvellement planifié."
+    notification: {regulateur: false, autorite_donnees: false, clients: false}
+    cause_racine: "Renouvellement manuel."
+    enseignements: "Automatisation du renouvellement inscrite au plan de la DSI."
+    actions: []

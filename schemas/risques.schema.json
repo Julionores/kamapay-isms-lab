@@ -1,0 +1,54 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Registre des risques",
+  "type": "object",
+  "required": ["version", "date_revue", "risques"],
+  "$defs": {
+    "cotation": {
+      "type": "object",
+      "required": ["V", "I"],
+      "additionalProperties": false,
+      "properties": {
+        "V": {"type": "integer", "minimum": 1, "maximum": 4},
+        "I": {"type": "integer", "minimum": 1, "maximum": 4}
+      }
+    },
+    "control": {"type": "string", "pattern": "^[5-8]\\.[0-9]{1,2}$"}
+  },
+  "properties": {
+    "version": {"type": "string"},
+    "date_revue": {"type": "string", "format": "date"},
+    "risques": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "titre", "scenario", "actifs", "proprietaire", "brut", "traitement", "controles", "residuel"],
+        "properties": {
+          "id": {"type": "string", "pattern": "^R[0-9]{2}$"},
+          "actifs": {"type": "array", "minItems": 1, "items": {"type": "string"}},
+          "brut": {"$ref": "#/$defs/cotation"},
+          "residuel": {"$ref": "#/$defs/cotation"},
+          "traitement": {"enum": ["reduire", "accepter", "transferer", "eviter"]},
+          "controles": {"type": "array", "items": {"$ref": "#/$defs/control"}},
+          "acceptation": {
+            "type": "object",
+            "required": ["par", "date", "motif"],
+            "properties": {"date": {"type": "string", "format": "date"}}
+          },
+          "actions": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": ["id", "libelle", "responsable", "echeance", "statut"],
+              "properties": {
+                "id": {"type": "string", "pattern": "^PA-[0-9]{2}$"},
+                "echeance": {"type": "string", "format": "date"},
+                "statut": {"enum": ["planifie", "en_cours", "termine"]}
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

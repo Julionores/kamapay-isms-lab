@@ -1,0 +1,11 @@
+# Secrets et clés du lab : générés localement par lab/scripts/init-secrets.sh
+lab/.env
+lab/proxy/certs/
+
+# Rapports d'exécution (publiés comme artefacts de la CI)
+reports/
+
+__pycache__/
+*.pyc
+.pytest_cache/
+.venv/

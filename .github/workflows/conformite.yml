@@ -1,0 +1,74 @@
+# Conformité continue du SMSI KamaPay.
+# - smsi : cohérence des référentiels, livrables générés à jour, tests de l'outillage ;
+# - lab  : démarrage du lab, scan de vulnérabilités, test de restauration et contrôles
+#          automatisés rattachés aux mesures de l'annexe A d'ISO/IEC 27001:2022.
+# L'exécution hebdomadaire détecte les dérives sans modification du dépôt
+# (nouvelle vulnérabilité, document dont la revue est échue, certificat proche de l'expiration).
+name: Conformité ISO 27001
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  schedule:
+    - cron: "17 5 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  smsi:
+    name: Cohérence du SMSI
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - run: pip install -r requirements-dev.txt
+      - name: Valider les référentiels et les documents
+        run: python -m isms validate
+      - name: Vérifier que les livrables générés sont à jour
+        run: python -m isms render --check
+      - name: Tests unitaires
+        run: python -m pytest -q
+      - name: Contrôles sur le dépôt (secrets, documents, analyse statique)
+        run: python -m checks --strict --cible depot
+
+  lab:
+    name: Contrôles techniques du lab
+    needs: smsi
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - run: pip install -r requirements-dev.txt
+      - name: Démarrer le lab
+        run: make lab-up
+      - name: Scanner l'image de l'API (Trivy)
+        run: make scan
+      - name: Tester la restauration des sauvegardes
+        run: make restore-test
+      - name: Exécuter tous les contrôles automatisés
+        run: make checks
+      - name: Publier le tableau de bord
+        if: always()
+        run: |
+          python -m isms render
+          cat docs/08-pilotage/tableau-de-bord.md >> "$GITHUB_STEP_SUMMARY"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: rapports-conformite
+          path: |
+            reports/
+            docs/08-pilotage/tableau-de-bord.md
+            docs/06-resilience/rapport-test-restauration.md
+      - name: Arrêter le lab
+        if: always()
+        run: make lab-down

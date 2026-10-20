@@ -1,0 +1,30 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Registre des incidents",
+  "type": "object",
+  "required": ["version", "incidents"],
+  "properties": {
+    "incidents": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "titre", "categorie", "gravite", "debut", "detection", "statut", "actifs", "risques", "notification"],
+        "properties": {
+          "id": {"type": "string", "pattern": "^INC-[0-9]{4}-[0-9]{3}$"},
+          "categorie": {"enum": ["fraude", "compromission_compte", "fuite_donnees", "disponibilite", "attaque_applicative", "logiciel_malveillant", "configuration", "physique"]},
+          "gravite": {"enum": ["P1", "P2", "P3", "P4"]},
+          "debut": {"type": "string", "format": "date-time"},
+          "detection": {"type": "string", "format": "date-time"},
+          "confinement": {"type": ["string", "null"], "format": "date-time"},
+          "cloture": {"type": ["string", "null"], "format": "date-time"},
+          "statut": {"enum": ["ouvert", "en_cours", "clos"]},
+          "notification": {
+            "type": "object",
+            "required": ["regulateur", "autorite_donnees", "clients"],
+            "additionalProperties": {"type": "boolean"}
+          }
+        }
+      }
+    }
+  }
+}

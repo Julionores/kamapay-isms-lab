@@ -1,0 +1,97 @@
+# Inventaire des actifs du périmètre SMSI (ISO/IEC 27001:2022, contrôle 5.9).
+# Les besoins de sécurité sont notés de 1 (faible) à 4 (critique) sur les axes
+# Disponibilité, Intégrité, Confidentialité, Traçabilité (DICT).
+version: "1.3"
+date_revue: 2026-09-30
+proprietaire_inventaire: RSSI
+
+actifs:
+  - id: A01
+    nom: Plateforme cœur de portefeuille (core wallet)
+    type: application
+    description: Tenue des comptes de monnaie électronique, moteur de transactions et grand livre.
+    proprietaire: DSI
+    hebergement: Centre de données principal (prestataire P01), site de secours (prestataire P02)
+    classification: confidentiel
+    dict: {D: 4, I: 4, C: 3, T: 4}
+
+  - id: A02
+    nom: Base clients et dossiers KYC
+    type: donnees
+    description: Identité des clients, MSISDN, numéros et copies des pièces d'identité, justificatifs.
+    proprietaire: Responsable Conformité
+    hebergement: Centre de données principal
+    classification: secret
+    dict: {D: 3, I: 4, C: 4, T: 4}
+
+  - id: A03
+    nom: Passerelle USSD / SMS et OTP
+    type: service
+    description: Interface avec l'opérateur mobile (canal USSD *126#, envoi des SMS et codes OTP).
+    proprietaire: DSI
+    hebergement: KamaTel, opérateur mobile actionnaire (P03)
+    classification: confidentiel
+    dict: {D: 4, I: 4, C: 3, T: 3}
+
+  - id: A04
+    nom: API partenaires (marchands, banques, agrégateurs)
+    type: application
+    description: API REST exposée sur Internet pour le paiement marchand, le cash-out bancaire et les agrégateurs.
+    proprietaire: Directeur des Opérations
+    hebergement: Centre de données principal, derrière le reverse proxy et le WAF
+    classification: confidentiel
+    dict: {D: 4, I: 4, C: 3, T: 4}
+
+  - id: A05
+    nom: Application et réseau d'agents distributeurs
+    type: processus
+    description: 4 200 agents et sous-distributeurs réalisant cash-in / cash-out via l'application agent.
+    proprietaire: Responsable Réseau de distribution
+    hebergement: Terminaux des agents (hors maîtrise directe)
+    classification: interne
+    dict: {D: 3, I: 4, C: 3, T: 4}
+
+  - id: A06
+    nom: Back-office d'administration et de service client
+    type: application
+    description: Consultation des comptes, blocage / déblocage, réinitialisation de PIN, remboursements.
+    proprietaire: Directeur des Opérations
+    hebergement: Centre de données principal, accès depuis le réseau interne uniquement
+    classification: confidentiel
+    dict: {D: 3, I: 4, C: 4, T: 4}
+
+  - id: A07
+    nom: Système d'information interne (postes, messagerie, annuaire)
+    type: infrastructure
+    description: 180 postes de travail, annuaire d'entreprise, messagerie et bureautique en ligne.
+    proprietaire: DSI
+    hebergement: Siège (Douala) et service cloud de bureautique
+    classification: interne
+    dict: {D: 2, I: 3, C: 3, T: 2}
+
+  - id: A08
+    nom: Sauvegardes et archives
+    type: donnees
+    description: Sauvegardes quotidiennes chiffrées des bases de production, archives réglementaires (10 ans).
+    proprietaire: DSI
+    hebergement: Site de secours (P02) et copie hors ligne
+    classification: secret
+    dict: {D: 3, I: 4, C: 4, T: 3}
+
+  - id: A09
+    nom: Journaux et SIEM
+    type: service
+    description: Collecte centralisée des journaux applicatifs, systèmes et réseau ; détection et corrélation.
+    proprietaire: RSSI
+    hebergement: Centre de données principal
+    classification: confidentiel
+    dict: {D: 3, I: 4, C: 3, T: 4}
+
+  - id: A10
+    nom: Prestataires critiques (hébergement, opérateur, éditeur)
+    type: fournisseur
+    description: P01 hébergeur principal, P02 site de secours, P03 KamaTel (opérateur mobile), P04 éditeur de la plateforme.
+    proprietaire: Responsable Achats
+    hebergement: Externe
+    classification: interne
+    dict: {D: 4, I: 3, C: 3, T: 3}

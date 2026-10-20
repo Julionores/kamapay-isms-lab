@@ -1,0 +1,32 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Suivi de la sensibilisation",
+  "type": "object",
+  "required": ["campagnes", "hameconnage_simule"],
+  "properties": {
+    "campagnes": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "theme", "public", "cible", "formes", "date"],
+        "properties": {
+          "public": {"enum": ["salaries", "agents", "clients"]},
+          "cible": {"type": "integer", "minimum": 1},
+          "formes": {"type": "integer", "minimum": 0}
+        }
+      }
+    },
+    "hameconnage_simule": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "date", "envoyes", "clics", "signalements"],
+        "properties": {
+          "envoyes": {"type": "integer", "minimum": 1},
+          "clics": {"type": "integer", "minimum": 0},
+          "signalements": {"type": "integer", "minimum": 0}
+        }
+      }
+    }
+  }
+}
