@@ -72,3 +72,41 @@ jobs:
       - name: Arrêter le lab
         if: always()
         run: make lab-down
+
+  historique:
+    name: Relevé hebdomadaire des indicateurs
+    needs: lab
+    # Chaque lundi (ou à la demande) sur main, y compris quand des contrôles échouent :
+    # une semaine non conforme doit aussi laisser une trace (clause 9.1).
+    if: >-
+      always() && needs.lab.result != 'cancelled' && github.ref == 'refs/heads/main' &&
+      (github.event_name == 'schedule' || github.event_name == 'workflow_dispatch')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write   # seul ce job écrit dans le dépôt (moindre privilège)
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - run: pip install -r requirements-dev.txt
+      - uses: actions/download-artifact@v4
+        with:
+          name: rapports-conformite
+      - name: Enregistrer le relevé et régénérer le tableau de bord
+        run: |
+          python -m isms history --source ci --commit "$GITHUB_SHA"
+          python -m isms render
+          python -m isms validate
+      - name: Committer le relevé
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/historique-kpi.yaml docs/08-pilotage/tableau-de-bord.md docs/06-resilience/rapport-test-restauration.md
+          if git diff --cached --quiet; then
+            echo "Aucun changement à enregistrer."
+          else
+            git commit -m "Relevé hebdomadaire des indicateurs du SMSI ($(date -u +%F))"
+            git push
+          fi

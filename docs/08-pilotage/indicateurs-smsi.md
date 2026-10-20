@@ -1,13 +1,13 @@
 ---
 id: PIL-01
 titre: Indicateurs de performance du SMSI
-version: "1.2"
+version: "1.3"
 statut: approuve
 classification: interne
 proprietaire: RSSI
 approbateur: Directeur Général
-date_approbation: 2026-07-10
-prochaine_revue: 2027-07-10
+date_approbation: 2026-10-20
+prochaine_revue: 2027-10-20
 controles_iso: []
 ---
 
@@ -17,6 +17,7 @@ controles_iso: []
 |---|---|---|---|
 | 1.0 | 2025-12-01 | RSSI | Création (clause 9.1) |
 | 1.2 | 2026-07-10 | RSSI | Calcul automatisé des indicateurs depuis les registres |
+| 1.3 | 2026-10-20 | RSSI | Conservation de l'historique des relevés hebdomadaires |
 
 ## 1. Objet
 
@@ -29,6 +30,8 @@ python -m isms kpi
 ```
 
 Le résultat est publié dans le [tableau de bord](tableau-de-bord.md). Les données sources ne sont jamais ressaisies : une valeur de tableau de bord est toujours traçable jusqu'à une ligne d'un registre ou d'un rapport de contrôle.
+
+**Conservation des résultats.** La clause 9.1 impose de conserver les résultats de la surveillance comme preuves. Chaque lundi, la CI exécute tous les contrôles puis enregistre un relevé daté (valeur des 10 indicateurs, contrôles conformes et non conformes, commit évalué) dans [data/historique-kpi.yaml](../../data/historique-kpi.yaml) avec `python -m isms history --source ci`, et le committe. Une semaine non conforme est enregistrée comme les autres. Le tableau de bord affiche la tendance par rapport au relevé précédent et les douze derniers relevés. Un relevé manuel se fait avec `python -m isms history`.
 
 ## 2. Synthèse
 

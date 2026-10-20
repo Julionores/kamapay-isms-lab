@@ -21,6 +21,7 @@ SCHEMAS = {
     "soa": "soa.schema.json",
     "incidents": "incidents.schema.json",
     "sensibilisation": "sensibilisation.schema.json",
+    "historique": "historique-kpi.schema.json",
 }
 
 _LINK = re.compile(r"\]\(([^)#\s]+)(?:#[^)]*)?\)")
@@ -129,6 +130,16 @@ def check_incidents(isms: Isms) -> list[str]:
     return errors
 
 
+def check_history(isms: Isms, today: date) -> list[str]:
+    """Clause 9.1 : relevés datés, uniques et chronologiques."""
+    dates = [r["date"] for r in isms.historique["releves"]]
+    errors = [f"Historique : plusieurs relevés le {d}" for d in sorted(_duplicates(dates))]
+    if dates != sorted(dates):
+        errors.append("Historique : relevés hors ordre chronologique")
+    errors += [f"Historique : relevé daté dans le futur ({d})" for d in dates if parse_date(d) > today]
+    return errors
+
+
 def check_documents(isms: Isms, today: date) -> list[str]:
     """Clause 7.5 : informations documentées identifiées, approuvées, revues et liées."""
     errors = []
@@ -180,5 +191,6 @@ def validate(isms: Isms, known_checks: set[str], today: date) -> list[str]:
         check_soa(isms, known_checks)
         + check_risks(isms, today)
         + check_incidents(isms)
+        + check_history(isms, today)
         + check_documents(isms, today)
     )

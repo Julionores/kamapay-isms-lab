@@ -3,7 +3,7 @@ PYTHON  ?= python3
 COMPOSE := docker compose -f lab/docker-compose.yml --env-file lab/.env
 TRIVY   := aquasec/trivy:0.58.1
 
-.PHONY: help install validate render test lab-up lab-down scan restore-test checks kpi all
+.PHONY: help install validate render test lab-up lab-down scan restore-test checks kpi history all
 
 help: ## Affiche cette aide
 	@grep -E '^[a-z-]+:.*## ' $(MAKEFILE_LIST) | awk -F':.*## ' '{printf "  %-14s %s\n", $$1, $$2}'
@@ -41,5 +41,8 @@ checks: ## Exécute les contrôles automatisés (reports/checks.json)
 
 kpi: ## Affiche les indicateurs du SMSI
 	$(PYTHON) -m isms kpi
+
+history: ## Enregistre un relevé daté des indicateurs (data/historique-kpi.yaml)
+	$(PYTHON) -m isms history
 
 all: validate test lab-up scan restore-test checks render kpi ## Chaîne complète

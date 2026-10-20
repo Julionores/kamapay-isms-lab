@@ -11,7 +11,7 @@ from collections import Counter, defaultdict
 from datetime import date
 from pathlib import Path
 
-from . import annexe_a, risk
+from . import annexe_a, history, risk
 from .data import GENERATED_MARKER, Isms
 from .kpi import Kpi
 
@@ -22,6 +22,7 @@ STATUS_LABELS = {
     "non_applicable": "Non applicable",
 }
 TREATMENT_LABELS = {"reduire": "Réduire", "accepter": "Accepter", "transferer": "Transférer", "eviter": "Éviter"}
+HISTORY_ROWS = 12
 ACTION_LABELS = {"planifie": "Planifiée", "en_cours": "En cours", "termine": "Terminée"}
 
 
@@ -176,18 +177,23 @@ def risk_register(isms: Isms) -> str:
     return "\n".join(lines)
 
 
-def dashboard(isms: Isms, kpis: list[Kpi], checks_report: dict | None, today: date) -> str:
+def dashboard(isms: Isms, kpis: list[Kpi], checks_report: dict | None, today: date,
+              releves: list[dict] = ()) -> str:
     state = {True: "Atteint", False: "**Non atteint**", None: "n.d."}
+    previous = next((r for r in reversed(releves) if r["date"] < today.isoformat()), None)
+    since = f"depuis le {previous['date']}" if previous else "aucun relevé antérieur"
     lines = [
         _header("data/*.yaml et reports/checks.json"),
         "# Tableau de bord du SMSI\n",
-        f"Situation au {today.isoformat()}. Définitions : [indicateurs du SMSI](indicateurs-smsi.md).\n",
+        f"Situation au {today.isoformat()}. Définitions : [indicateurs du SMSI](indicateurs-smsi.md). "
+        f"Tendance : {since}.\n",
         "## Indicateurs\n",
-        "| Indicateur | Libellé | Valeur | Cible | État | Détail |",
-        "|---|---|---:|---|---|---|",
+        "| Indicateur | Libellé | Valeur | Cible | État | Tendance | Détail |",
+        "|---|---|---:|---|---|---|---|",
     ]
     lines += [
-        f"| {k.id} | {k.libelle} | {k.formatted()} | {k.cible} | {state[k.atteint]} | {_cell(k.detail)} |"
+        f"| {k.id} | {k.libelle} | {k.formatted()} | {k.cible} | {state[k.atteint]} "
+        f"| {history.trend(k, previous['indicateurs'].get(k.id) if previous else None)} | {_cell(k.detail)} |"
         for k in kpis
     ]
 
@@ -220,6 +226,23 @@ def dashboard(isms: Isms, kpis: list[Kpi], checks_report: dict | None, today: da
             f"| {r['id']} | {', '.join(r['controles'])} | {_cell(r['titre'])} | {r['statut']} | {_cell(r['detail'])} |"
             for r in checks_report["resultats"]
         ]
+
+    if releves:
+        ids = [k.id for k in kpis]
+        recent = list(releves)[-HISTORY_ROWS:]
+        lines += [
+            "",
+            "## Historique des relevés\n",
+            f"{len(releves)} relevé(s) dans [data/historique-kpi.yaml](../../data/historique-kpi.yaml), "
+            f"complété chaque lundi par la CI ; les {HISTORY_ROWS} plus récents sont affichés.\n",
+            "| Date | " + " | ".join(i.replace("KPI-", "K") for i in ids) + " | Contrôles |",
+            "|---|" + "---:|" * len(ids) + "---|",
+        ]
+        for r in reversed(recent):
+            values = ["n.d." if r["indicateurs"].get(i) is None else f"{r['indicateurs'][i]:g}" for i in ids]
+            ctl = r.get("controles")
+            checks = f"{ctl['conformes']}/{ctl['total']}" if ctl else "n.d."
+            lines.append(f"| {r['date']} | " + " | ".join(values) + f" | {checks} |")
     lines.append("")
     return "\n".join(lines)
 

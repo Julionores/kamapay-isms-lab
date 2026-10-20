@@ -5,7 +5,7 @@ import pytest
 
 from checks.registry import REGISTRY
 from checks.repository import SECRET_PATTERNS
-from isms import ROOT, annexe_a, kpi, render, risk
+from isms import ROOT, annexe_a, history, kpi, render, risk
 from isms.data import load
 from isms.validate import check_incidents, check_risks, check_soa, validate
 
@@ -103,3 +103,26 @@ def test_secret_patterns_detect(text):
 ])
 def test_secret_patterns_ignore_references(text):
     assert not any(p.search(text) for p in SECRET_PATTERNS.values())
+
+
+def test_history_replaces_same_day_and_stays_sorted(tmp_path, isms):
+    path = tmp_path / "historique.yaml"
+    kpis = kpi.compute(isms, TODAY, checks_report=None)
+    history.record(path, history.entry(kpis, None, date(2026, 10, 27), "ci", "abcdef1234567"))
+    history.record(path, history.entry(kpis, None, TODAY, "manuel", None))
+    entries = history.record(path, history.entry(kpis, None, TODAY, "ci", None))
+    assert [(e["date"], e["source"]) for e in entries] == [("2026-10-20", "ci"), ("2026-10-27", "ci")]
+    assert history.load(path) == entries
+
+
+@pytest.mark.parametrize("kpi_id, previous, expected", [
+    ("KPI-01", 90.0, "amélioration (+2.5)"),    # cible ≥ : une hausse améliore
+    ("KPI-05", 10.0, "**dégradation** (+4.91)"),  # cible < : une hausse dégrade
+    ("KPI-03", 0, "stable"),
+    ("KPI-02", None, "-"),
+])
+def test_trend_direction(isms, kpi_id, previous, expected):
+    k = {k.id: k for k in kpi.compute(isms, TODAY, checks_report=None)}[kpi_id]
+    if kpi_id == "KPI-02":
+        k.valeur = 100.0
+    assert history.trend(k, previous) == expected

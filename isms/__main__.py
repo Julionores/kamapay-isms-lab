@@ -10,12 +10,13 @@ from pathlib import Path
 
 from checks.registry import REGISTRY
 
-from . import ROOT, kpi, render
+from . import ROOT, history, kpi, render
 from .data import load
 from .validate import validate
 
 CHECKS_REPORT = ROOT / "reports" / "checks.json"
 RESTORE_REPORT = ROOT / "reports" / "restauration.json"
+HISTORY = ROOT / "data" / "historique-kpi.yaml"
 
 
 def _checks_report() -> dict | None:
@@ -60,7 +61,8 @@ def cmd_render(args) -> int:
         # Livrables dépendant d'une exécution (date, résultats du lab) : non vérifiés en mode --check.
         report = _checks_report()
         _write(ROOT / "docs/08-pilotage/tableau-de-bord.md",
-               render.dashboard(isms, kpi.compute(isms, args.date, report), report, args.date), False)
+               render.dashboard(isms, kpi.compute(isms, args.date, report), report, args.date,
+                                history.load(HISTORY)), False)
         if RESTORE_REPORT.exists():
             result = json.loads(RESTORE_REPORT.read_text(encoding="utf-8"))
             _write(ROOT / "docs/06-resilience/rapport-test-restauration.md", render.restore_report(result), False)
@@ -78,6 +80,17 @@ def cmd_kpi(args) -> int:
     return 0
 
 
+def cmd_history(args) -> int:
+    report = _checks_report()
+    if report is None and args.source == "ci":
+        print("ERREUR : reports/checks.json absent ; exécuter les contrôles avant d'enregistrer un relevé.")
+        return 1
+    kpis = kpi.compute(load(), args.date, report)
+    entries = history.record(HISTORY, history.entry(kpis, report, args.date, args.source, args.commit))
+    print(f"relevé du {args.date.isoformat()} enregistré dans data/historique-kpi.yaml ({len(entries)} relevés)")
+    return 0
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(prog="isms", description="Outillage du SMSI KamaPay")
     parser.add_argument("--date", type=date.fromisoformat, default=date.today(),
@@ -90,6 +103,10 @@ def main(argv: list[str] | None = None) -> int:
     p_kpi = sub.add_parser("kpi", help="calculer les indicateurs du SMSI")
     p_kpi.add_argument("--json", action="store_true")
     p_kpi.set_defaults(func=cmd_kpi)
+    p_history = sub.add_parser("history", help="enregistrer un relevé daté des indicateurs")
+    p_history.add_argument("--source", choices=["ci", "manuel"], default="manuel")
+    p_history.add_argument("--commit", help="commit évalué (traçabilité du relevé)")
+    p_history.set_defaults(func=cmd_history)
     args = parser.parse_args(argv)
     return args.func(args)
 

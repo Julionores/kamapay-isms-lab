@@ -57,6 +57,7 @@ class Isms:
     soa: dict
     incidents: dict
     sensibilisation: dict
+    historique: dict = field(default_factory=lambda: {"releves": []})
     documents: list[Document] = field(default_factory=list)
 
     @property
@@ -101,5 +102,7 @@ def load(root: Path = ROOT) -> Isms:
         soa=load_yaml(data / "soa.yaml"),
         incidents=load_yaml(data / "incidents.yaml"),
         sensibilisation=load_yaml(data / "sensibilisation.yaml"),
+        historique=(load_yaml(data / "historique-kpi.yaml") if (data / "historique-kpi.yaml").exists()
+                    else {"releves": []}),
         documents=[load_document(p) for p in sorted((root / "docs").rglob("*.md"))],
     )

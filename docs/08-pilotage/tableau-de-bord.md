@@ -3,22 +3,22 @@
 
 # Tableau de bord du SMSI
 
-Situation au 2026-10-20. Définitions : [indicateurs du SMSI](indicateurs-smsi.md).
+Situation au 2026-10-20. Définitions : [indicateurs du SMSI](indicateurs-smsi.md). Tendance : aucun relevé antérieur.
 
 ## Indicateurs
 
-| Indicateur | Libellé | Valeur | Cible | État | Détail |
-|---|---|---:|---|---|---|
-| KPI-01 | Mesures applicables implémentées | 92.5 % | ≥ 85 % | Atteint | 86 sur 93 |
-| KPI-02 | Contrôles automatisés conformes | 100.0 % | 100 % | Atteint | 16 sur 16 (exécution du 2026-10-20) |
-| KPI-03 | Risques au-delà de l'appétence non acceptés | 0 | 0 | Atteint | aucun |
-| KPI-04 | Actions de traitement en retard | 0 | 0 | Atteint | aucune |
-| KPI-05 | Délai moyen de détection (P1/P2) | 14.91 h | < 4 h | **Non atteint** | 4 incidents |
-| KPI-06 | Délai moyen de confinement (P1/P2) | 1.21 h | < 4 h | Atteint | 4 incidents |
-| KPI-07 | Taux de formation (toutes campagnes) | 76.5 % | ≥ 90 % | **Non atteint** | 3489 sur 4562 |
-| KPI-08 | Taux de clic, dernier hameçonnage simulé | 6.1 % | < 10 % | Atteint | PHISH-2026-03 |
-| KPI-09 | Taux de signalement, dernier hameçonnage simulé | 38.1 % | ≥ 30 % | Atteint | PHISH-2026-03 |
-| KPI-10 | Documents dont la revue est à jour | 100.0 % | 100 % | Atteint | 32 sur 32 |
+| Indicateur | Libellé | Valeur | Cible | État | Tendance | Détail |
+|---|---|---:|---|---|---|---|
+| KPI-01 | Mesures applicables implémentées | 92.5 % | ≥ 85 % | Atteint | - | 86 sur 93 |
+| KPI-02 | Contrôles automatisés conformes | 100.0 % | 100 % | Atteint | - | 16 sur 16 (exécution du 2026-10-20) |
+| KPI-03 | Risques au-delà de l'appétence non acceptés | 0 | 0 | Atteint | - | aucun |
+| KPI-04 | Actions de traitement en retard | 0 | 0 | Atteint | - | aucune |
+| KPI-05 | Délai moyen de détection (P1/P2) | 14.91 h | < 4 h | **Non atteint** | - | 4 incidents |
+| KPI-06 | Délai moyen de confinement (P1/P2) | 1.21 h | < 4 h | Atteint | - | 4 incidents |
+| KPI-07 | Taux de formation (toutes campagnes) | 76.5 % | ≥ 90 % | **Non atteint** | - | 3489 sur 4562 |
+| KPI-08 | Taux de clic, dernier hameçonnage simulé | 6.1 % | < 10 % | Atteint | - | PHISH-2026-03 |
+| KPI-09 | Taux de signalement, dernier hameçonnage simulé | 38.1 % | ≥ 30 % | Atteint | - | PHISH-2026-03 |
+| KPI-10 | Documents dont la revue est à jour | 100.0 % | 100 % | Atteint | - | 32 sur 32 |
 
 ## Incidents de l'année
 
@@ -61,3 +61,11 @@ Situation au 2026-10-20. Définitions : [indicateurs du SMSI](indicateurs-smsi.m
 | CHK-TLS-01 | 8.24, 5.14, 8.21 | Seuls TLS 1.2 et TLS 1.3 sont acceptés | PASS | acceptés : TLS 1.2, TLS 1.3 ; refusés : TLS 1.0, TLS 1.1 |
 | CHK-TLS-02 | 8.24, 8.21 | HSTS actif et certificat valide plus de 14 jours | PASS | HSTS max-age=31536000 s ; certificat valide encore 89 jours |
 | CHK-RATE-01 | 8.5, 8.16 | La force brute sur l'authentification est limitée (HTTP 429) | PASS | 12 réponses 429 sur 12 essais, blocage dès la tentative 1 |
+
+## Historique des relevés
+
+1 relevé(s) dans [data/historique-kpi.yaml](../../data/historique-kpi.yaml), complété chaque lundi par la CI ; les 12 plus récents sont affichés.
+
+| Date | K01 | K02 | K03 | K04 | K05 | K06 | K07 | K08 | K09 | K10 | Contrôles |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---|
+| 2026-10-20 | 92.5 | 100 | 0 | 0 | 14.91 | 1.21 | 76.5 | 6.1 | 38.1 | 100 | 16/16 |

@@ -28,7 +28,7 @@ l'annexe A. Chaque commit relance la validation, les contrôles et le tableau de
 | Préparer une stratégie de résilience du SI | [BIA](docs/06-resilience/bia.md), [PCA/PRA](docs/06-resilience/pca-pra.md) et un [test de restauration réellement exécuté](docs/06-resilience/rapport-test-restauration.md) : sauvegarde chiffrée, restauration sur instance vierge, contrôle d'intégrité |
 | Sensibiliser et former | [Programme annuel](docs/07-sensibilisation/programme-sensibilisation.md), [quiz hameçonnage](docs/07-sensibilisation/quiz-phishing.md), [kit pour les agents distributeurs](docs/07-sensibilisation/kit-agents-distributeurs.md) |
 | Mettre en place une veille sécurité | [Procédure de veille](docs/01-gouvernance/procedures/PROC-03-veille-securite.md) et modèle de bulletin |
-| Piloter et rendre compte à la direction | [10 indicateurs](docs/08-pilotage/indicateurs-smsi.md), [tableau de bord généré](docs/08-pilotage/tableau-de-bord.md), [programme d'audit interne](docs/08-pilotage/programme-audit-interne.md), [revue de direction](docs/08-pilotage/revue-de-direction.md) |
+| Piloter et rendre compte à la direction | [10 indicateurs](docs/08-pilotage/indicateurs-smsi.md), [tableau de bord généré](docs/08-pilotage/tableau-de-bord.md) avec tendance, [historique hebdomadaire des relevés](data/historique-kpi.yaml), [programme d'audit interne](docs/08-pilotage/programme-audit-interne.md), [revue de direction](docs/08-pilotage/revue-de-direction.md) |
 
 ## Architecture
 
@@ -66,6 +66,7 @@ make scan           # scan Trivy de l'image de l'API
 make restore-test   # sauvegarde chiffrée, restauration, contrôle d'intégrité
 make checks         # 16 contrôles automatisés
 make render kpi     # livrables et indicateurs à jour
+make history        # enregistrer un relevé daté des indicateurs
 make lab-down
 ```
 
@@ -103,7 +104,7 @@ validateur échoue si la SoA cite un contrôle qui n'existe pas.
 ## Structure du dépôt
 
 ```
-data/        référentiels du SMSI (actifs, risques, SoA, incidents, sensibilisation)
+data/        référentiels du SMSI (actifs, risques, SoA, incidents, sensibilisation, historique)
 schemas/     schémas JSON de ces référentiels et des métadonnées documentaires
 docs/        documentation du SMSI (contexte, gouvernance, risques, SoA, projets,
              incidents, résilience, sensibilisation, pilotage)
@@ -111,7 +112,7 @@ isms/        outillage : validation, génération des livrables, indicateurs
 checks/      contrôles automatisés rattachés aux mesures de l'annexe A
 lab/         API de paiement, proxy TLS, base PostgreSQL, scripts (secrets, restauration)
 tests/       tests unitaires de l'outillage
-.github/     intégration continue (à chaque commit et chaque lundi)
+.github/     intégration continue (à chaque commit ; chaque lundi, relevé des indicateurs committé)
 ```
 
 ## Limites assumées
