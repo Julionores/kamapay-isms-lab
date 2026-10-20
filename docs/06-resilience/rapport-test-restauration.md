@@ -7,15 +7,15 @@ Preuve des mesures 8.13 (sauvegarde) et 5.30 (préparation des TIC pour la conti
 
 | Élément | Résultat |
 |---|---|
-| Date d'exécution (UTC) | 2026-10-20T21:04:38+00:00 |
+| Date d'exécution (UTC) | 2026-10-20T22:19:47+00:00 |
 | Résultat | Test réussi |
 | Méthode | pg_dump -Fc, chiffrement AES-256-CBC/PBKDF2, pg_restore sur instance isolée (--network none) |
-| Durée de la sauvegarde | 0.66 s |
-| Durée de la restauration (déchiffrement, instance vierge, pg_restore) | 5.6 s |
-| Durée totale | 6.56 s |
+| Durée de la sauvegarde | 0.41 s |
+| Durée de la restauration (déchiffrement, instance vierge, pg_restore) | 6.19 s |
+| Durée totale | 6.72 s |
 | Empreinte d'intégrité de la source | `3:3:237000:2000:5a62056b12d5b2463352776157a741fc` |
 | Empreinte d'intégrité de la copie restaurée | `3:3:237000:2000:5a62056b12d5b2463352776157a741fc` |
-| SHA-256 de la sauvegarde chiffrée | `f8b2fbb2d392253ea2d436a777ababa16114265c74c07c0fcf3de84a620878f2` |
+| SHA-256 de la sauvegarde chiffrée | `032149ad8750d16a4048b287cee5f5ced32ddf93147db8ec1e19bda7097e03ed` |
 
 L'empreinte combine le nombre de clients et de portefeuilles, la somme des soldes, le nombre de transactions et un condensat MD5 de l'ensemble des transactions triées. Deux empreintes identiques prouvent que la copie restaurée est complète et intègre.
 

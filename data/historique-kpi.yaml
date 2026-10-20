@@ -3,8 +3,8 @@
 # Définitions des indicateurs : docs/08-pilotage/indicateurs-smsi.md
 releves:
 - date: '2026-10-20'
-  source: manuel
-  commit: b54e3c09914d
+  source: ci
+  commit: 4b80a80c3f2f
   indicateurs: {KPI-01: 92.5, KPI-02: 100.0, KPI-03: 0, KPI-04: 0, KPI-05: 14.91,
     KPI-06: 1.21, KPI-07: 76.5, KPI-08: 6.1, KPI-09: 38.1, KPI-10: 100.0}
   controles:
