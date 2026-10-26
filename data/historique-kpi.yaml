@@ -11,3 +11,12 @@ releves:
     conformes: 16
     total: 16
     non_conformes: []
+- date: '2026-10-26'
+  source: ci
+  commit: b18d753a86b3
+  indicateurs: {KPI-01: 92.5, KPI-02: 100.0, KPI-03: 0, KPI-04: 0, KPI-05: 14.91,
+    KPI-06: 1.21, KPI-07: 76.5, KPI-08: 6.1, KPI-09: 38.1, KPI-10: 100.0}
+  controles:
+    conformes: 16
+    total: 16
+    non_conformes: []
